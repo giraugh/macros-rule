@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Macros Rule!</title>
+  </head>
+  <body>
+    <script type="module" src="/src/main.ts"></script>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Macros Rule!</h1>
+        </section>
+
+        <section>
+          <div>
+            <p>You've probably seen this before</p>
+            <pre class="code-sample-1">
+              <code class="rust">
+                let nums = vec![1, 2, 3];
+              </code>
+            </pre>
+          </div>
+          <div class="fragment second">
+            <p>Or perhaps this</p>
+            <pre class="code-sample-2">
+              <code class="rust">
+                println!("Hello world!");
+              </code>
+            </pre>
+          </div>
+          <div class="fragment three">
+            <p>
+              These are macro invocations!
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <p>When compiled, macros are expanded</p>
+          <pre>
+            <code data-trim class="rust">
+              let nums = vec![1, 2, 3];
+            </code>
+          </pre>
+          <pre class="fragment">
+            <h3 style="text-align: center;">&#8595;</h3>
+            <code data-trim class="rust">
+              let nums = &lt;[_]>::into_vec(
+                #[rustc_box] ::alloc::boxed::Box::new([1, 2, 3])
+              );
+            </code>
+          </pre>
+        </section>
+
+        <section>
+          macros are expanded into rust<span class="fragment footnote" data-fragment-index="1">*</span><br />which is then compiled with the rest of our code
+          <footer class="fragment footnote" data-fragment-index="1" style="opacity: .6; padding-block-start: 1em; font-size: 1.5rem;">
+            *with the exception of <code>format_args!</code> which is <a href="https://github.com/rust-lang/compiler-team/issues/541">treated differently</a>
+          </footer>
+        </section>
+        <section>
+          <p>
+            We can use <code>rustc</code> to see what macros expand to
+          </p>
+          <pre><code data-trim class="bash">
+            cargo rustc -- -Zunpretty=expanded 
+          </code></pre>
+          <div class="fragment">
+            <p>Or you can use <code>cargo-expand</code></p>
+            <pre><code data-trim class="bash">
+              cargo install cargo-expand # build from source
+              cargo expand # similar to rustc command
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          For example, if we have this source
+          <pre><code data-trim class="rust">
+            fn main() {
+              stringify!((1, 'a'))
+            }
+          </code></pre>
+          <div class="fragment">
+            Running <code>cargo-expand</code> gives us
+            <pre><code data-trim class="bash">
+              cargo expand
+            </code></pre>
+            <pre><code data-trim class="rust">
+              // ...snip
+              fn main() {
+                  "(1, \'a\')"
+              }
+            </code></pre>
+          </div>
+        </section>
+
+        <section>
+          <h4>
+            now lets make our own!
+          </h4>
+        </section>
+
+        <section>
+          <p>
+            the <code>macro_rules!</code> macro lets us create our own macros using pattern matching
+          </p>
+        </section>
+      
+        <section>
+          <p>There are 3 common reasons to use <code>macro_rules</code></p>
+          <ul>
+            <li class="fragment">To create "functions" with variadic arguments</li>
+            <li class="fragment">To implement DSLs</li>
+            <li class="fragment">To reduce repetition</li>
+          </ul>
+        </section>
+      
+        <section>
+          <p>
+            Suppose we're writing a test to compare some values
+          </p>
+          <pre><code data-trim class="rust">
+            #[test]
+            fn my_test() {
+              assert!(1 &lt; 10, "Expected 1 to be less than 10");
+              assert!(5 &lt; 500, "Expected 5 to be less than 500");
+              assert!(10 &lt; 100, "Expected 10 to be less than 100");
+            }
+          </code></pre>
+        </section>
+        
+        <section>
+          <section>
+            <p>
+              We can create a macro to perform the assertion and reduce the repetition.
+              <span>We'll want to use it like this</span>
+            </p>
+            <pre><code data-trim class="rust">
+              assert_lt!(5, 10);
+            </code></pre>
+          </section>
+          <section>
+            <p>
+              First, we use <code>macro_rules!</code> to declare our new macro
+            </p>
+            <pre><code data-trim class="rust">
+              macro_rules! assert_lt {
+
+              }
+            </code></pre>
+            <span class="note">(Note that we don't include the <code>!</code> in our macro name)</span>
+          </section>
+          <section>
+            <p>
+              Now we can add our first (and only) pattern. It accepts two expressions seperated by a comma.
+            </p>
+            <pre><code data-trim class="rust">
+              macro_rules! assert_lt {
+                ($x: expr, $y: expr) => {}
+              }
+            </code></pre>
+          </section>
+          <section>
+            <p>
+              Now we can fill the body of the pattern with code that the macro will expand to when the pattern matches.
+            </p>
+            <pre><code data-trim class="rust">
+              macro_rules! assert_lt {
+                ($x: expr, $y: expr) => {
+                  assert!(
+                    $x &lt; $y,
+                    "assertion failed: expected {} &lt; {}",
+                    $x,
+                    $y
+                  )
+                }
+              }
+            </code></pre>
+          </section>
+          <section>
+            Our macro is now done and we can use it in our test.
+            <pre><code data-trim class="rust">
+              #[test]
+              fn my_test() {
+                assert_lt!(1, 10);
+                assert_lt!(10, 100);
+                assert_lt!(5, 500);
+              }
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            Lets go back to look at our macro. The choice of the comma in the pattern is arbitrary.
+            <pre><code data-trim class="rust">
+              macro_rules! assert_lt {
+                ($x: expr, $y: expr) => {
+                  // ...snip
+                }
+              }
+            </code></pre>
+          </section>
+          <section>
+            For example, we could have used a semicolon instead.
+            <pre><code data-trim class="rust">
+              macro_rules! assert_lt {
+                ($x: expr; $y: expr) => {
+                  // ...snip
+                }
+              }
+            </code></pre>
+          </section>
+          <section>
+            There is a limitation however as the pattern must represent correct rust syntax.
+            Using a hash symbol for example would be invalid.
+            <pre><code data-trim class="rust">
+              macro_rules! assert_lt {
+                ($x: expr # $y: expr) => { // compiler error
+                  // ...snip
+                }
+              }
+            </code></pre>
+            <pre><code data-trim class="language-text" style="color: rgb(210, 107, 107);">
+              `$x:expr` is followed by `#` which is not allowed for `expr` fragments
+              allowed there are: `=>`, `,` or `;`
+            </code></pre>
+          </section>
+          <section>
+            However, this limitation applies only to macros created using <code>macro_rules</code> and does not apply to
+            procedural macros.
+          </section>
+        </section>
+
+        <section>
+          <section>
+            Suppose we have this linked list structure.
+            <pre><code data-trim class="rust">
+              struct LinkedListNode&lt;T> {
+                value: T,
+                next: Option&lt;Box&lt;LinkedListNode&lt;T>>>,
+              }
+            </code></pre>
+          </section>
+          <section>
+            We have <code>Display</code> implemented for it, just for convenience. So we can print it.
+            <pre><code data-trim class="rust">
+              impl&lt;T: Display> Display for LinkedListNode&lt;T> {
+                fn fmt(&self, fmt: &mut Formatter) -> std::fmt::Result {
+                  // ...snip
+                }
+              }
+            </code></pre>
+            <pre><code data-trim class="rust">
+              let some_linked_list = // ...snip
+              println!("{}", some_linked_list) // prints a -> b -> c
+            </code></pre>
+          </section>
+          <section>
+            But how we do we construct them?
+          </section>
+          <section>
+            Functions have a set number of args so
+            we'd have to have one for each list size.
+            <pre><code data-trim class="rust">
+              pub fn make_pair_list(a: T, b: T) -> Self {
+                  LinkedListNode {
+                      value: a,
+                      next: Some(Box::new(LinkedListNode {
+                          value: b,
+                          next: None,
+                      })),
+                  }
+              }
+            </code></pre>
+            <pre><code data-trim class="rust">
+              pub fn make_triple_list(a: T, b: T, c: T) -> Self {
+                  LinkedListNode {
+                      value: a,
+                      next: Some(Box::new(LinkedListNode {
+                          value: b,
+                          next: // ...snip (and so on)
+                      })),
+                  }
+              }
+            </code></pre>
+          </section>
+          <section>
+            We <em>could</em> of course just accept a <code>Vec</code> or a slice of values.
+          </section>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>
