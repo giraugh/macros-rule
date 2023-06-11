@@ -6,6 +6,7 @@ struct LinkedListNode<T> {
     next: Option<Box<LinkedListNode<T>>>,
 }
 
+#[allow(unused)]
 impl<T> LinkedListNode<T> {
     pub fn new(value: T) -> Self {
         Self { value, next: None }
@@ -34,11 +35,14 @@ impl<T> LinkedListNode<T> {
         }
     }
 
-    pub fn from_slice(values: [T]) -> Self {
+    pub fn from_slice(values: &mut [T]) -> Self
+    where
+        T: Default,
+    {
         let mut current: Option<LinkedListNode<T>> = None;
         for value in values.into_iter() {
             current = Some(LinkedListNode {
-                value,
+                value: std::mem::take(value),
                 next: current.map(Box::new),
             });
         }

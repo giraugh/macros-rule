@@ -6,8 +6,14 @@ Repo for "Macros Rule!", A presentation about macros for Rust Melbourne.
 
 ## Building
 
-Building the examples requires a rust installation and cargo.
-Some of the examples may use nightly-only features so using a nightly install is recommended.
+The examples are setup as a cargo workspace so you can build and test them all using cargo.
+Some of the examples may use experimental syntax so using a nightly install of rust is recommended.
+
+```
+cd examples
+cargo check
+cargo test
+```
 
 ## Contributing
 

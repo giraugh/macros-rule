@@ -1,0 +1,11 @@
+[workspace]
+
+members = [
+  "assert-lt-macro",
+  "linked-list-macro",
+  "tokio-main-macro",
+
+  "println-invocation",
+  "stringify-invocation",
+  "vec-invocation",
+]
