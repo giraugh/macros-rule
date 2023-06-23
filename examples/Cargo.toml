@@ -4,6 +4,9 @@ members = [
   "assert-lt-macro",
   "linked-list-macro",
   "tokio-main-macro",
+  "s-expr-macro",
+  "tax-test-macro",
+  "id-macro",
 
   "println-invocation",
   "stringify-invocation",

@@ -40,6 +40,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "id-macro"
+version = "0.1.0"
+
+[[package]]
 name = "libc"
 version = "0.2.146"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -141,6 +145,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "s-expr-macro"
+version = "0.1.0"
+
+[[package]]
 name = "scopeguard"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -185,6 +193,10 @@ dependencies = [
  "quote",
  "unicode-ident",
 ]
+
+[[package]]
+name = "tax-test-macro"
+version = "0.1.0"
 
 [[package]]
 name = "tokio"
