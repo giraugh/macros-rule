@@ -1,15 +1,7 @@
 [workspace]
 
 members = [
-  "assert-lt-macro",
   "linked-list-macro",
-  "tokio-main-macro",
-  "s-expr-macro",
-  "tax-test-macro",
-  "id-macro",
   "repetition-macro",
-
-  "println-invocation",
-  "stringify-invocation",
   "vec-invocation",
 ]
