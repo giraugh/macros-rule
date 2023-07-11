@@ -1,19 +1,10 @@
-import Reveal from 'reveal.js'
+import './app.css'
+import App from './App.svelte'
+import config from './config'
 
-import RevealHighlight from 'reveal.js/plugin/highlight/highlight'
-import RevealMarkdown from 'reveal.js/plugin/markdown/markdown'
-
-import 'reveal.js/dist/reveal.css'
-import 'reveal.js/dist/theme/black.css'
-import 'reveal.js/plugin/highlight/monokai.css'
-
-import './global.css'
-
-const deck = new Reveal()
-deck.initialize({
-  hash: true,
-  plugins: [
-    RevealMarkdown,
-    RevealHighlight,
-  ]
+const app = new App({
+	target: document.getElementById('app'),
+	props: config
 })
+
+export default app

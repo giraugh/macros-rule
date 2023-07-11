@@ -1,5 +1,13 @@
 # Macros Rule
 
+## Changes
+
+-> Instead of tax macro, use linked list `list` macro
+-> Intead of `count_foos`, do a `make_tuple`
+
+
+
+
 ## Theming
 
 - medieval/kingdom aesthetic

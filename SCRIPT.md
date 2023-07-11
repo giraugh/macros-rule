@@ -160,6 +160,6 @@ Lets use this for our `assert_gt` macro!
 
 We want it to work like this, where each element must be greater than the next.
 
-(...adding a new rule, talking about recursion (with a diagram), etc)
+(...adding a new rule, talking about recursion (with a diagram), etc
 
 

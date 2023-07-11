@@ -7,6 +7,7 @@ members = [
   "s-expr-macro",
   "tax-test-macro",
   "id-macro",
+  "repetition-macro",
 
   "println-invocation",
   "stringify-invocation",
